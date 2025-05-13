@@ -110,17 +110,30 @@ class Product extends BasePage {
     // Find first visible slide index
     const firstVisibleIndex = Array.from(slides).findIndex(slide => slide.style.display !== 'none');
 
-
     if (type === 'main') {
       slider.update(); // caused issue in thumbs slider
-      // setTimeout(() => slider.slideTo(0));
+      setTimeout(() => {
+        slider.slideTo(0);
+        // Add event listener for main slider changes
+        slider.addEventListener('slideChange', (e) => {
+          const activeIndex = e.detail.activeIndex;
+          if (thumbsSlider) {
+            thumbsSlider.slideTo(activeIndex);
+          }
+        });
+      });
     } else {
       thumbsSlider.update();
-
       setTimeout(() => {
-        console.log("🚀 ~ Product ~ filterSlides ~ firstVisibleIndex:", firstVisibleIndex)
-        thumbsSlider.slideTo(firstVisibleIndex)
-      }, 1000);
+        thumbsSlider.slideTo(firstVisibleIndex);
+        // Add event listener for thumbs slider changes
+        thumbsSlider.on('slideChange', (e) => {
+          const activeIndex = e.detail.activeIndex;
+          if (slider) {
+            slider.slideTo(activeIndex);
+          }
+        });
+      });
     }
   }
 
@@ -164,4 +177,4 @@ class Product extends BasePage {
   }
 }
 
-Product.initiateWhenReady(['product.single']);
+Product.initiateWhenReady(['product.single']); 
